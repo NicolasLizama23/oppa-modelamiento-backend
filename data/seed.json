@@ -1,0 +1,37 @@
+{
+  "cupones": [
+    {
+      "codigo": "CUPON_PRUEBA1",
+      "estado": true,
+      "descuento": { "tipo": "PORCENTAJE", "valor": 10 },
+      "uso_permitido": 0,
+      "uso_unico_por_usuario": true,
+      "aplicacion_todos": true,
+      "aplicacion_algunos": { "id_servicio": [] },
+      "fecha_inicio": "2026-01-22T18:09:00.000Z",
+      "fecha_termino": "2026-02-22T18:09:00.000Z"
+    },
+    {
+      "codigo": "CUPON_PRUEBA2",
+      "estado": true,
+      "descuento": { "tipo": "MONTO", "valor": 2000 },
+      "uso_permitido": 10,
+      "uso_unico_por_usuario": false,
+      "aplicacion_todos": false,
+      "aplicacion_algunos": { "id_servicio": ["srv01", "srv03"] },
+      "fecha_inicio": "2026-01-10T00:00:00.000Z",
+      "fecha_termino": "2026-03-10T23:59:59.000Z"
+    }
+  ],
+  "usos": [
+    {
+      "codigo_cupon": "CUPON_PRUEBA2",
+      "id_usuario": "uid_45",
+      "id_servicio": "srv01",
+      "id_venta": "venta_001",
+      "fecha_uso": "2026-01-20T12:00:00.000Z"
+    }
+  ]
+}
+
+
