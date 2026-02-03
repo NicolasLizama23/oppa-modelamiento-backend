@@ -6,7 +6,7 @@ import { fetchCoupons } from "../repository/querys.js";
 // CREAR CUPONES
 export async function createCoupon(id, data) {
     if (!id) throw new Error("ID requerido");
-    if (data.estado !== (true || false)) {
+    if (typeof data.estado !== 'boolean') {
         throw new Error("El campo estado debe ser booleano");
     }
     if (data.descuento.valor <= 0) {
