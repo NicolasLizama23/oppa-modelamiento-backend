@@ -1,19 +1,30 @@
 import express from "express";
 import cors from "cors";
-
-import seedRoutes from "./routes/seed.routes.js";
-import dashboardRoutes from "./routes/dashboard.routes.js";
-import couponsRoutes from "./routes/coupons.routes.js";
+import couponsRouter from "./routes/coupons.routes.js";
+import dashboardRouter from "./routes/dashboard.routes.js";
 
 const app = express();
+const port = 3000;
+
 app.use(cors());
+// Middleware para parsear JSON
 app.use(express.json());
 
-app.get("/health", (_, res) => res.json({ ok: true }));
+// Log de peticiones para debugear
+app.use((req, res, next) => {
+    console.log(req.method, req.url);
+    next();
+});
 
-app.use("/seed", seedRoutes);
-app.use("/dashboard", dashboardRoutes);
-app.use("/coupons", couponsRoutes);
+// Rutas
+app.use("/coupons", couponsRouter);
+app.use("/dashboard", dashboardRouter);
 
-const PORT = 3000;
-app.listen(PORT, () => console.log(`API running on http://127.0.0.1:${PORT}`));
+// Manejo de errores 404
+app.use((req, res) => {
+    res.status(404).json({ error: "Ruta no encontrada" });
+});
+
+app.listen(port, () => {
+    console.log(`🚀 Server corriendo en http://localhost:${port}`);
+});

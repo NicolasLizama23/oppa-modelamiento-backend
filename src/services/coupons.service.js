@@ -1,7 +1,7 @@
 // Capa de logica de negocios
 // RESPONSABILIDAD: Limpiar y procesar la data entrante según la lógica requerida para los cupones y servicios.
 import { insertCoupon, deleteCoupon } from "../repository/crud.js";
-import { fetchCoupons, fetchServices } from "../repository/querys.js";
+import { fetchCoupons } from "../repository/querys.js";
 
 // CREAR CUPONES
 export async function createCoupon(id, data) {
@@ -20,7 +20,6 @@ export async function createCoupon(id, data) {
     });
 }
 
-// TODO: Delete solo de prueba, eliminar una vez terminado los endpoints de la app.
 export async function deleteCouponID(id) {
     if (!id) throw new Error("ID requerido para eliminar");
     return deleteCoupon(id);
