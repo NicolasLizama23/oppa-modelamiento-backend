@@ -6,7 +6,7 @@ import { db } from "../config/firestore.js";
 // GET: Obtiene cupones con filtros dinámicos
 export async function fetchCoupons(filters = {}) {
     try {
-        let query = db.collection("coleccion-cupon");
+        let query = db.collection("coleccion-cupones");
 
         // Filtro por 'estado' (activo/inactivo)
         if (filters.estado !== undefined) {

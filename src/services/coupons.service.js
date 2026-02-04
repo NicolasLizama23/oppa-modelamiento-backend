@@ -2,6 +2,8 @@
 // RESPONSABILIDAD: Limpiar y procesar la data entrante según la lógica requerida para los cupones y servicios.
 import { insertCoupon, deleteCoupon } from "../repository/crud.js";
 import { fetchCoupons } from "../repository/querys.js";
+import { formatDateCL } from "../utils/dateFormatter.js";
+
 
 // CREAR CUPONES
 export async function createCoupon(id, data) {
@@ -28,5 +30,18 @@ export async function deleteCouponID(id) {
 // Obtiene cupones aplicando filtros
 export async function getCoupons(filters) {
     const snapshot = await fetchCoupons(filters);
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    return snapshot.docs.map((doc) => {
+        const c = doc.data();
+
+        return {
+            id: doc.id,
+            codigo: c.codigo,
+            estado: c.estado,
+            descuento: c.descuento,
+            fecha_inicio: formatDateCL(c.fecha_inicio),
+            fecha_termino: formatDateCL(c.fecha_termino),
+            fecha_creacion: formatDateCL(c.fecha_creacion),
+        };
+    });
 }

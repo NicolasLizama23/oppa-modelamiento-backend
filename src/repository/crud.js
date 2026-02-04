@@ -8,7 +8,7 @@ import { db } from "../config/firestore.js";
 // Si la coleccion o el documento no existen se creará e insertará la data:
 export async function insertCoupon(id, data) {
     try {
-        await db.collection("coleccion-cupon").doc(id).set(data);
+        await db.collection("coleccion-cupones").doc(id).set(data);
     } catch (error) {
         throw error;
     }
@@ -20,7 +20,7 @@ export async function updateCoupon(id, data) {}
 
 export async function deleteCoupon(id) {
     try {
-        await db.collection("coleccion-cupon").doc(id).delete();
+        await db.collection("coleccion-cupones").doc(id).delete();
     } catch (error) {
         throw error;
     }
