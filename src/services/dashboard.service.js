@@ -25,7 +25,7 @@ export async function getDashboardData() {
                 id: randomService.id,
                 nombre: randomService.nombre,
             },
-            acciones: ["EDITAR", "DESABILITAR", "VER DETALLE"], // Listado de acciones disponibles
+            acciones: ["DESHABILITAR", "VER DETALLE"], // Listado de acciones disponibles
         };
     });
 }
