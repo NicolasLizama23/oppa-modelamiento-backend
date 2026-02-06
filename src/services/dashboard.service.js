@@ -11,7 +11,7 @@ export async function getDashboardData() {
     // 2. Mapear y combinar con servicios simulados
     return snapshot.docs.map((doc) => {
         const coupon = { id: doc.id, ...doc.data() };
-        
+
         // Simulamos una asignación de servicio aleatoria o basada en un campo si existiera
         // Para este ejemplo, elegimos uno al azar de los mockServices
         const randomService =
@@ -25,7 +25,7 @@ export async function getDashboardData() {
                 id: randomService.id,
                 nombre: randomService.nombre,
             },
-            acciones: ["DESHABILITAR", "VER DETALLE"], // Listado de acciones disponibles
+            acciones: ["DESHABILITAR", "HABILITAR", "VER DETALLE"], // Listado de acciones disponibles
         };
     });
 }

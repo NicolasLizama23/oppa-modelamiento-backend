@@ -38,20 +38,20 @@ export async function getCouponsController(req, res) {
 
 // GET /coupons/details/:id
 export async function getCouponDetailsController(req, res) {
-  try {
-    const { id } = req.params;
+    try {
+        const { id } = req.params;
 
-    if (!id) {
-      return res.status(400).json({ error: "ID requerido" });
+        if (!id) {
+            return res.status(400).json({ error: "ID requerido" });
+        }
+
+        // Llama al service que arma el payload del popup
+        const details = await getCouponDetails(id);
+
+        return res.status(200).json(details);
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
     }
-
-    // Llama al service que arma el payload del popup
-    const details = await getCouponDetails(id);
-
-    return res.status(200).json(details);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
 }
 
 // DELETE /coupons/:id

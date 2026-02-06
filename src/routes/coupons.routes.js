@@ -19,6 +19,7 @@ router.get("/details/:id", getCouponDetailsController);
 // POST / => Crear un nuevo cupón
 router.post("/", createCouponController);
 
+// TODO: Eliminar operacion delete
 // DELETE /:id => Eliminar un cupón por su ID
 router.delete("/:id", deleteCouponController);
 

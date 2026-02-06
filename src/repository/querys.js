@@ -1,33 +1,35 @@
 import { db } from "../config/firestore.js";
-import { mockServices } from "../utils/mockData.js";
-
-// --------------------
-// Helpers internos
-// --------------------
-// Mapa id_servicio -> nombre_servicio para resolver rápido desde mock
-const servicesMap = new Map(mockServices.map((s) => [s.id, s.nombre]));
-
-// Helper interno: dado un id, devuelve el nombre o fallback
-function getServiceNameById(id) {
-  return servicesMap.get(id) || "Servicio desconocido";
-}
+import { buildQuery } from "../helpers/queryBuilder.js";
 
 ///-----------///
 ///  CUPONES  ///
 ///-----------///
 // GET: Obtiene cupones con filtros dinámicos
+
 export async function fetchCoupons(filters = {}) {
     try {
-        let query = db.collection("coleccion-cupones");
+        const query = db.collection("coleccion-cupon");
 
-        // Filtro por 'estado' (activo/inactivo)
-        if (filters.estado !== undefined) {
-            // Convertimos el string 'true'/'false' a booleano si es necesario
-            const infoEstado = filters.estado === "true";
-            query = query.where("estado", "==", infoEstado);
-        }
+        const filterConfig = {
+            estado: (q, value) => {
+                // Si el valor es "todos", no filtramos (retornamos la query tal cual)
+                if (value === "todos") return q;
+                // Convertimos string a booleano si viene como string
+                const booleanValue = value === "true" || value === true;
+                return q.where("estado", "==", booleanValue);
+            },
+            tipo: (q, value) => {
+                if (value === "todos") return q;
+                return q.where("descuento.tipo", "==", value);
+            },
+            aplicacion: (q, value) => {
+                if (value === "todos") return q;
+                return q.where("aplicacion", "==", value);
+            },
+        };
 
-        return await query.get();
+        const finalQuery = buildQuery(query, filters, filterConfig);
+        return await finalQuery.get();
     } catch (error) {
         throw error;
     }
@@ -50,60 +52,24 @@ export async function fetchServices() {
 // POST:
 // UPDATE (o patch):
 
-///---------------------------///
-///  PopUp de "Ver Detalles"  ///
-///---------------------------///
-/// GET: Detalle para popup "Ver detalles"
-export async function fetchCouponDetails(id) {
-  try {
-    // 1) Cupón (docId = id)
-    const couponSnap = await db.collection("coleccion-cupones").doc(id).get();
-
-    if (!couponSnap.exists) {
-      const e = new Error("Cupón no encontrado");
-      e.status = 404;
-      throw e;
+// GET: Obtiene el documento de un cupón por ID
+export async function fetchCouponById(id) {
+    try {
+        return await db.collection("coleccion-cupon").doc(id).get();
+    } catch (error) {
+        throw error;
     }
+}
 
-    const coupon = couponSnap.data();
-
-    // 2) Usos del cupón (colección global)
-    const usosSnap = await db
-      .collection("usos")
-      .where("codigo_cupon", "==", id)
-      .orderBy("fecha_uso", "desc")
-      .get();
-
-    const usos = usosSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-
-    // 3) Aplicación / Servicios
-    const esTodos = coupon.aplicacion_todos === true;
-    const serviciosIds = Array.isArray(coupon?.aplicacion_algunos?.id_servicio)
-      ? coupon.aplicacion_algunos.id_servicio
-      : [];
-
-    // 4) Payload para el popup (data lista, no snapshot)
-    return {
-      id,
-      codigo: coupon.codigo || id,
-      aplicacion: esTodos ? "Todos los servicios" : "Servicios específicos",
-      servicios: esTodos
-        ? []
-        : serviciosIds.map((sid) => ({
-            id_servicio: sid,
-            nombre_servicio: getServiceNameById(sid),
-          })),
-      usos: {
-        total: usos.length,
-        items: usos.map((u) => ({
-          id_usuario: u.id_usuario || null,
-          id_servicio: u.id_servicio || null,
-          nombre_servicio: u.id_servicio ? getServiceNameById(u.id_servicio) : null,
-          fecha_uso: u.fecha_uso?.toDate ? u.fecha_uso.toDate().toISOString() : null,
-        })),
-      },
-    };
-  } catch (error) {
-    throw error;
-  }
+// GET: Obtiene los usos de un cupón
+export async function fetchCouponUsages(couponId) {
+    try {
+        return await db
+            .collection("usos")
+            .where("codigo_cupon", "==", couponId)
+            .orderBy("fecha_uso", "desc")
+            .get();
+    } catch (error) {
+        throw error;
+    }
 }
