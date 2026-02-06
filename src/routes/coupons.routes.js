@@ -3,6 +3,7 @@ import {
     createCouponController,
     getCouponsController,
     deleteCouponController,
+    getCouponDetailsController,
 } from "../controller/coupons.controller.js";
 
 const router = Router();
@@ -11,6 +12,9 @@ const router = Router();
 
 // GET / => Obtener cupones (acepta filtros por query params)
 router.get("/", getCouponsController);
+
+// GET /details/:id => Detalle popup "Ver detalles"
+router.get("/details/:id", getCouponDetailsController);
 
 // POST / => Crear un nuevo cupón
 router.post("/", createCouponController);

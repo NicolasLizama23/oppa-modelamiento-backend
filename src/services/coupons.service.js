@@ -1,7 +1,7 @@
 // Capa de logica de negocios
 // RESPONSABILIDAD: Limpiar y procesar la data entrante según la lógica requerida para los cupones y servicios.
 import { insertCoupon, deleteCoupon } from "../repository/crud.js";
-import { fetchCoupons } from "../repository/querys.js";
+import { fetchCoupons, fetchCouponDetails } from "../repository/querys.js";
 import { formatDateCL } from "../utils/dateFormatter.js";
 
 
@@ -44,4 +44,12 @@ export async function getCoupons(filters) {
             fecha_creacion: formatDateCL(c.fecha_creacion),
         };
     });
+}
+
+// Detalle para popup "Ver detalles"
+export async function getCouponDetails(id) {
+  if (!id) throw new Error("ID requerido");
+
+  // Trae detalle armado desde el repo
+  return fetchCouponDetails(id);
 }

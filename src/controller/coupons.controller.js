@@ -2,6 +2,7 @@ import {
     createCoupon,
     getCoupons,
     deleteCouponID,
+    getCouponDetails,
 } from "../services/coupons.service.js";
 
 // POST /coupons
@@ -33,6 +34,24 @@ export async function getCouponsController(req, res) {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+}
+
+// GET /coupons/details/:id
+export async function getCouponDetailsController(req, res) {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "ID requerido" });
+    }
+
+    // Llama al service que arma el payload del popup
+    const details = await getCouponDetails(id);
+
+    return res.status(200).json(details);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 }
 
 // DELETE /coupons/:id
