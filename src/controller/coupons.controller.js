@@ -28,6 +28,8 @@ export async function createCouponController(req, res) {
 // GET /coupons
 export async function getCouponsController(req, res) {
     try {
+        console.log("getcouponscontroller funcionando!");
+
         const coupons = await getCoupons(req.query);
 
         res.status(200).json(coupons);

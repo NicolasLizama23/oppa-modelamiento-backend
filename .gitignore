@@ -2,12 +2,16 @@
 node_modules/
 npm-debug.log*
 
+# pnpm
+*.yaml
+
 # Firebase
 firestore-debug.log
 firebase-debug.log
 
 # Environment
 .env
+.venv
 
 # OS
 .DS_Store
