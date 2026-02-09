@@ -71,5 +71,17 @@ export async function fetchServices() {
     }
 }
 
+// GET: Obtiene un servicio por ID
+export async function fetchServiceById(id) {
+    try {
+        const doc = await db.collection("coleccion-servicio").doc(id).get();
+        if (!doc.exists) return null;
+        return { id: doc.id, ...doc.data() };
+    } catch (error) {
+        console.error("Error fetching service:", error);
+        return null;
+    }
+}
+
 // POST:
 // UPDATE (o patch):

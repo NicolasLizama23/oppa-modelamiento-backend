@@ -4,6 +4,17 @@
  * @param {object} data - Datos del cupón
  * @returns {object} - Datos normalizados si son válidos
  */
+function validateDate(dateString, fieldName) {
+    if (!dateString) {
+        throw new Error(`El campo '${fieldName}' es requerido`);
+    }
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+        throw new Error(`El campo '${fieldName}' debe ser una fecha válida`);
+    }
+    return date;
+}
+
 export function validateCouponData(id, data) {
     // 1. Validar ID
     if (!id || typeof id !== "string" || id.trim() === "") {
@@ -11,7 +22,11 @@ export function validateCouponData(id, data) {
     }
 
     // 2. Validar campos booleanos obligatorios
-    const booleanFields = ["estado", "uso_unico_por_usuario", "aplicacion_todos"];
+    const booleanFields = [
+        "estado",
+        "uso_unico_por_usuario",
+        "aplicacion_todos",
+    ];
     booleanFields.forEach((field) => {
         if (typeof data[field] !== "boolean") {
             throw new Error(`El campo '${field}' debe ser booleano`);
@@ -27,39 +42,74 @@ export function validateCouponData(id, data) {
     if (typeof tipo !== "string" || tipo.trim() === "") {
         throw new Error("El 'tipo' de descuento debe ser un string no vacío");
     }
-    
+
     // Normalización del tipo de descuento
     const tipoNormalizado = tipo.trim().toUpperCase();
     const tiposPermitidos = ["PORCENTAJE", "MONTO"];
 
     if (!tiposPermitidos.includes(tipoNormalizado)) {
-        throw new Error(`Tipo de descuento inválido. Permitidos: ${tiposPermitidos.join(", ")}`);
+        throw new Error(
+            `Tipo de descuento inválido. Permitidos: ${tiposPermitidos.join(", ")}`,
+        );
     }
 
     if (typeof valor !== "number" || valor <= 0) {
-        throw new Error("El 'valor' del descuento debe ser numérico y mayor a 0");
+        throw new Error(
+            "El 'valor' del descuento debe ser numérico y mayor a 0",
+        );
     }
 
     // Regla de negocio: Porcentaje no mayor a 100
     if (tipoNormalizado === "PORCENTAJE" && valor > 100) {
         throw new Error("El porcentaje de descuento no puede ser mayor a 100");
     }
+    // Regla de negocio: Monto no menor ni igual a 0
+    if (tipoNormalizado === "MONTO" && valor <= 0) {
+        throw new Error(
+            "El monto de descuento no puede ser menor o igual a $0",
+        );
+    }
 
     // 4. Validar usos permitidos
     if (typeof data.uso_permitido !== "number" || data.uso_permitido <= 0) {
-        throw new Error("El campo 'uso_permitido' debe ser numérico y mayor a 0");
+        throw new Error(
+            "El campo 'uso_permitido' debe ser numérico y mayor a 0",
+        );
     }
 
     // 5. Validar aplicación de servicios (si no aplica a todos)
     if (data.aplicacion_todos === false) {
-        if (!data.aplicacion_servicios || typeof data.aplicacion_servicios !== "object") {
-            throw new Error("Debe especificar 'aplicacion_servicios' cuando aplicacion_todos es false");
+        if (!Array.isArray(data.aplicacion_algunos)) {
+            throw new Error(
+                "Debe especificar 'aplicacion_algunos' como un array de IDs cuando aplicacion_todos es false",
+            );
         }
 
-        const serviciosSeleccionados = Object.values(data.aplicacion_servicios).some((v) => v === true);
-        if (!serviciosSeleccionados) {
-            throw new Error("Debe seleccionar al menos un servicio si el cupón no aplica a todos");
+        if (data.aplicacion_algunos.length === 0) {
+            throw new Error(
+                "Debe seleccionar al menos un servicio si el cupón no aplica a todos",
+            );
         }
+
+        // Validar que todos los elementos del array sean strings
+        const todosStrings = data.aplicacion_algunos.every(
+            (id) => typeof id === "string" && id.trim() !== "",
+        );
+        if (!todosStrings) {
+            throw new Error(
+                "Todos los IDs de servicios en 'aplicacion_algunos' deben ser strings válidos",
+            );
+        }
+    } else if (data.aplicacion_todos === true) {
+        data.aplicacion_algunos = [];
+    }
+
+    // 6. Validar Fechas
+    const fechaInicio = validateDate(data.fecha_inicio, "fecha_inicio");
+    const fechaTermino = validateDate(data.fecha_termino, "fecha_termino");
+
+    if (fechaInicio >= fechaTermino) {
+        throw new Error("La fecha de inicio debe ser anterior a la fecha de término");
     }
 
     // Retornar objeto limpio y normalizado
@@ -69,6 +119,8 @@ export function validateCouponData(id, data) {
             tipo: tipoNormalizado,
             valor,
         },
+        fecha_inicio: fechaInicio.toISOString(),
+        fecha_termino: fechaTermino.toISOString(),
     };
 }
 
@@ -79,7 +131,9 @@ export function validateCouponData(id, data) {
  */
 export function validateCouponId(id) {
     if (!id || typeof id !== "string" || id.trim() === "") {
-        throw new Error("El ID del cupón es requerido y debe ser un string válido");
+        throw new Error(
+            "El ID del cupón es requerido y debe ser un string válido",
+        );
     }
     return id.trim();
 }
