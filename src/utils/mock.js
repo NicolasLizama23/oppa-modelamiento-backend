@@ -1,3 +1,39 @@
+export const mockCoupons = [
+    {
+        id: "CUPON_PRUEBA1",
+        estado: true,
+        descuento: { tipo: "PORCENTAJE", valor: 12 },
+        uso_permitido: 5,
+        uso_unico_por_usuario: true,
+        aplicacion_todos: true,
+        aplicacion_algunos: [],
+        fecha_inicio: "2026-01-22T18:09:00.000Z",
+        fecha_termino: "2026-02-22T18:09:00.000Z",
+    },
+    {
+        id: "CUPON_PRUEBA2",
+        estado: true,
+        descuento: { tipo: "MONTO", valor: 1100 },
+        uso_permitido: 80,
+        uso_unico_por_usuario: true,
+        aplicacion_todos: false,
+        aplicacion_algunos: ["srv_senior_003", "srv_senior_001"],
+        fecha_inicio: "2026-01-22T18:09:00.000Z",
+        fecha_termino: "2026-02-22T18:09:00.000Z",
+    },
+    {
+        id: "CUPON_PRUEBA3",
+        estado: true,
+        descuento: { tipo: "PORCENTAJE", valor: 6 },
+        uso_permitido: 5,
+        uso_unico_por_usuario: true,
+        aplicacion_todos: true,
+        aplicacion_algunos: [],
+        fecha_inicio: "2026-01-22T18:09:00.000Z",
+        fecha_termino: "2026-02-22T18:09:00.000Z",
+    },
+];
+
 export const mockServices = [
     {
         id: "srv_senior_001",

@@ -34,23 +34,6 @@ export async function fetchCoupons(filters = {}) {
         throw error;
     }
 }
-// POST:
-// UPDATE (o patch):
-
-///-----------///
-/// SERVICIOS ///
-///---------- ///
-// GET:
-export async function fetchServices() {
-    try {
-        return db.collection("coleccion-servicio").get();
-    } catch (error) {
-        throw error;
-    }
-}
-
-// POST:
-// UPDATE (o patch):
 
 // GET: Obtiene el documento de un cupón por ID
 export async function fetchCouponById(id) {
@@ -73,3 +56,32 @@ export async function fetchCouponUsages(couponId) {
         throw error;
     }
 }
+// POST:
+// UPDATE (o patch):
+
+///-----------///
+/// SERVICIOS ///
+///---------- ///
+// GET:
+export async function fetchServices() {
+    try {
+        return db.collection("coleccion-servicio").get();
+    } catch (error) {
+        throw error;
+    }
+}
+
+// GET: Obtiene un servicio por ID
+export async function fetchServiceById(id) {
+    try {
+        const doc = await db.collection("coleccion-servicio").doc(id).get();
+        if (!doc.exists) return null;
+        return { id: doc.id, ...doc.data() };
+    } catch (error) {
+        console.error("Error fetching service:", error);
+        return null;
+    }
+}
+
+// POST:
+// UPDATE (o patch):

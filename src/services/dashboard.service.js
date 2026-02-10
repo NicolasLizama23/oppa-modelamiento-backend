@@ -1,21 +1,24 @@
 // Capa de logica de negocios para el dashboard del admin
 // RESPONSABILIDAD: Limpiar y procesar la data entrante según la lógica requerida para el dashboard.
-import { fetchCoupons } from "../repository/querys.js";
-import { mockServices } from "../utils/mockData.js";
+import { fetchCoupons, fetchServices } from "../repository/querys.js";
 
-// Obtiene la data formateada para el dashboard
 export async function getDashboardData() {
     // 1. Obtener todos los cupones
     const snapshot = await fetchCoupons({});
 
-    // 2. Mapear y combinar con servicios simulados
+    // 2. Obtener servicios reales
+    const servicesSnap = await fetchServices();
+    const services = servicesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // 3. Mapear y combinar
     return snapshot.docs.map((doc) => {
         const coupon = { id: doc.id, ...doc.data() };
 
-        // Simulamos una asignación de servicio aleatoria o basada en un campo si existiera
-        // Para este ejemplo, elegimos uno al azar de los mockServices
-        const randomService =
-            mockServices[Math.floor(Math.random() * mockServices.length)];
+        // Simulamos asignación aleatoria usando servicios reales si existen
+        let randomService = { id: "N/A", nombre: "Sin servicio asignado" };
+        if (services.length > 0) {
+            randomService = services[Math.floor(Math.random() * services.length)];
+        }
 
         return {
             codigo: coupon.id, // Usamos el ID del documento como código
