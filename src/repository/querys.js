@@ -26,8 +26,10 @@ export async function fetchCoupons(filters = {}) {
             // ya que antes se filtraba por un campo que no existía en Firestore.
             aplicacion: (q, value) => {
                 if (value === "todos") return q;
-                if (value === "TODOS") return q.where("aplicacion_todos", "==", true);
-                if (value === "ESPECIFICOS") return q.where("aplicacion_todos", "==", false);
+            // "global" -> aplicacion_todos = true
+            if (value === "global") return q.where("aplicacion_todos", "==", true);
+            // "algunos" -> aplicacion_todos = false
+            if (value === "algunos") return q.where("aplicacion_todos", "==", false);
                 return q;
             },
 
