@@ -10,12 +10,14 @@ export async function fetchCoupons(filters = {}) {
     try {
         const query = db.collection("coleccion-cupon");
 
+        // Aqui la 'q' indica 'query', y 'value' el valor a filtrar
         const filterConfig = {
             estado: (q, value) => {
-                // Si el valor es "todos", no filtramos (retornamos la query tal cual)
+                // Si el valor es "todos", no filtramos
                 if (value === "todos") return q;
-                // Convertimos string a booleano si viene como string
-                const booleanValue = value === "true" || value === true;
+                
+                // Convertimos string a booleano solo si es "true"
+                const booleanValue = value === "true";
                 return q.where("estado", "==", booleanValue);
             },
             tipo: (q, value) => {
@@ -24,7 +26,12 @@ export async function fetchCoupons(filters = {}) {
             },
             aplicacion: (q, value) => {
                 if (value === "todos") return q;
-                return q.where("aplicacion", "==", value);
+                // "global" -> aplicacion_todos = true
+                if (value === "global") return q.where("aplicacion_todos", "==", true);
+                // "algunos" -> aplicacion_todos = false
+                if (value === "algunos") return q.where("aplicacion_todos", "==", false);
+                
+                return q;
             },
         };
 

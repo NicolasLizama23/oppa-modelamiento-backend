@@ -144,17 +144,44 @@ export function validateCouponId(id) {
  * @returns {object} - Filtros limpios y seguros
  */
 export function validateCouponFilters(filters = {}) {
-    const allowedFilters = ["estado", "tipo", "aplicacion"];
     const cleanFilters = {};
 
-    Object.keys(filters).forEach((key) => {
-        if (allowedFilters.includes(key)) {
-            const value = filters[key];
-            if (typeof value === "string" && value.trim() !== "") {
-                cleanFilters[key] = value.trim();
-            }
+    // 1. Validar Estado ('true', 'false', 'todos')
+    if (filters.estado !== undefined && filters.estado !== null) {
+        const val = filters.estado.toString().trim().toLowerCase();
+        if (["true", "false", "todos"].includes(val)) {
+            cleanFilters.estado = val;
+        } else {
+            throw new Error(
+                "El filtro 'estado' debe ser 'true', 'false' o 'todos'",
+            );
         }
-    });
+    }
+
+    // 2. Validar Tipo ('PORCENTAJE', 'MONTO', 'todos')
+    if (filters.tipo) {
+        const val = filters.tipo.toString().trim().toUpperCase();
+        const validTypes = ["PORCENTAJE", "MONTO", "TODOS"];
+        if (validTypes.includes(val)) {
+            cleanFilters.tipo = val === "TODOS" ? "todos" : val;
+        } else {
+            throw new Error(
+                "El filtro 'tipo' debe ser 'PORCENTAJE', 'MONTO' o 'todos'",
+            );
+        }
+    }
+
+    // 3. Validar Aplicación ('global', 'algunos', 'todos')
+    if (filters.aplicacion) {
+        const val = filters.aplicacion.toString().trim().toLowerCase();
+        if (["global", "algunos", "todos"].includes(val)) {
+            cleanFilters.aplicacion = val;
+        } else {
+            throw new Error(
+                "El filtro 'aplicacion' debe ser 'global', 'algunos' o 'todos'",
+            );
+        }
+    }
 
     return cleanFilters;
 }
