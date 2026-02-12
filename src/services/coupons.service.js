@@ -1,6 +1,6 @@
 // Capa de logica de negocios
 // RESPONSABILIDAD: Limpiar y procesar la data entrante según la lógica requerida para los cupones y servicios.
-import { insertCoupon, deleteCoupon } from "../repository/crud.js";
+import { insertCoupon, deleteCoupon, updateCoupon } from "../repository/crud.js";
 import {
     fetchCoupons,
     fetchCouponById,
@@ -121,30 +121,53 @@ export async function getCouponDetails(id) {
     return {
         id,
         codigo: coupon.codigo || id,
+        estado: coupon.estado,
+        descuento: coupon.descuento,
+        uso_permitido: coupon.uso_permitido,
+        uso_unico_por_usuario: coupon.uso_unico_por_usuario,
+
         fecha_inicio: formatDateCL(coupon.fecha_inicio),
         fecha_termino: formatDateCL(coupon.fecha_termino),
         fecha_creacion: formatDateCL(coupon.fecha_creacion),
+
         aplicacion: esTodos ? "Todos los servicios" : "Servicios específicos",
         servicios: serviciosData,
+
         usos: {
             total: usos.length,
             items: await Promise.all(
-                usos.map(async (u) => {
-                    let nombreServicio = null;
-                    if (u.id_servicio) {
-                        const s = await fetchServiceById(u.id_servicio);
-                        nombreServicio = s ? s.nombre : "Desconocido";
-                    }
-                    return {
-                        id_usuario: u.id_usuario || null,
-                        id_servicio: u.id_servicio || null,
-                        nombre_servicio: nombreServicio,
-                        fecha_uso: u.fecha_uso,
-                    };
-                })
+            usos.map(async (u) => {
+                let nombreServicio = null;
+                if (u.id_servicio) {
+                const s = await fetchServiceById(u.id_servicio);
+                nombreServicio = s ? s.nombre : "Desconocido";
+                }
+                return {
+                id_usuario: u.id_usuario || null,
+                id_servicio: u.id_servicio || null,
+                nombre_servicio: nombreServicio,
+                fecha_uso: u.fecha_uso,
+                };
+            })
             ),
         },
     };
+
+}
+
+// Acciones: Cambio de estado de Activo/Desactivo mediante Botones Habilitar/Deshabilitar
+export async function toggleCouponStatus(id) {
+  const coupon = await fetchCouponById(id);
+  if (!coupon) throw new Error("Cupón no encontrado");
+
+  const nuevoEstado = !coupon.estado;
+
+  await updateCoupon(id, { estado: nuevoEstado });
+
+  return {
+    id,
+    estado: nuevoEstado,
+  };
 }
 
 // TODO: Eliminar funcion delete

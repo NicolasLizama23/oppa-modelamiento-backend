@@ -4,6 +4,7 @@ import {
     getCouponsController,
     deleteCouponController,
     getCouponDetailsController,
+    toggleCouponStatusController,
 } from "../controller/coupons.controller.js";
 
 const router = Router();
@@ -18,6 +19,9 @@ router.get("/details/:id", getCouponDetailsController);
 
 // POST / => Crear un nuevo cupón
 router.post("/", createCouponController);
+
+// PATCH /:id/toggle => Habilitar/Deshabilitar cupón (cambia estado true/false)
+router.patch("/:id/toggle", toggleCouponStatusController);
 
 // TODO: Eliminar operacion delete
 // DELETE /:id => Eliminar un cupón por su ID
