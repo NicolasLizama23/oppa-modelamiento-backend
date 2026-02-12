@@ -7,6 +7,7 @@ const $ = (sel) => document.querySelector(sel);
 // usamos rutas relativas:
 const API = ""; // "" => same-origin
 
+// to do: se debe fixear la generacion de codigos
 function genCode(len = 8) {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let out = "";
@@ -55,6 +56,18 @@ async function apiDelete(path) {
   return data;
 }
 
+async function apiPatch(path, body = null) {
+  const res = await fetch(`${API}${path}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : null,
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data?.error || `Error PATCH ${path}`);
+  return data;
+}
+
 // ---------- UI RENDER ----------
 function renderTable(items) {
   const tbody = $("#tbodyCoupons");
@@ -63,7 +76,12 @@ function renderTable(items) {
   for (const c of items) {
     const row = document.createElement("tr");
 
-    // tu endpoint GET /coupons ya trae fecha_inicio y fecha_termino formateadas (string)
+    // botón dinámico según estado
+    const toggleLabel = c.estado ? "Deshabilitar" : "Habilitar";
+    const toggleClass = c.estado
+      ? "btn-outline-warning"
+      : "btn-outline-success";
+
     row.innerHTML = `
       <td><strong>${c.codigo ?? c.id}</strong></td>
       <td>${badgeEstado(c.estado)}</td>
@@ -71,17 +89,19 @@ function renderTable(items) {
       <td>${c.fecha_inicio ?? "—"}<br><small class="text-muted">al ${c.fecha_termino ?? "—"}</small></td>
       <td class="text-end">
         <div class="d-inline-flex gap-2">
+
           <button class="btn btn-outline-primary btn-sm"
                   data-action="details"
                   data-id="${c.id}">
             Ver detalles
           </button>
 
-          <button class="btn btn-outline-danger btn-sm"
-                  data-action="delete"
+          <button class="btn ${toggleClass} btn-sm"
+                  data-action="toggle"
                   data-id="${c.id}">
-            Eliminar
+            ${toggleLabel}
           </button>
+
         </div>
       </td>
     `;
@@ -90,7 +110,9 @@ function renderTable(items) {
   }
 
   $("#kpiTotal").textContent = String(items.length);
-  $("#listMsg").textContent = items.length ? "" : "Sin resultados para los filtros seleccionados.";
+  $("#listMsg").textContent = items.length
+    ? ""
+    : "Sin resultados para los filtros seleccionados.";
 }
 
 function openDetailsModal(details) {
@@ -98,7 +120,10 @@ function openDetailsModal(details) {
   $("#dCodigo").textContent = details.codigo ?? "—";
   $("#dEstado").textContent = labelEstado(details.estado ?? false);
   $("#dDescuento").textContent = renderDiscount(details.descuento);
-  $("#dUsos").textContent = String(details.usos?.total ?? 0);
+  const permitidos = details.uso_permitido ?? 0;
+  const usados = details.usos?.total ?? 0;
+  $("#dUsos").textContent = `${usados} / ${permitidos}`;
+
 
   $("#dAplicacion").textContent = details.aplicacion ?? "—";
 
@@ -125,12 +150,12 @@ async function loadCoupons() {
     const fAplicacion = $("#fAplicacion").value;
 
     // Backend soporta query params: estado, tipo, aplicacion
-    // OJO: "aplicacion" en backend hoy está medio inconsistente (te lo dejo abajo como fix recomendado).
     const params = new URLSearchParams();
     if (fEstado !== "todos") params.set("estado", fEstado);
     if (fTipo !== "todos") params.set("tipo", fTipo);
     if (fAplicacion !== "todos") params.set("aplicacion", fAplicacion);
 
+    // GET /coupons?estado=...&tipo=...&aplicacion=... (Carga de tabla y filtros)
     const data = await apiGet(`/coupons${params.toString() ? `?${params}` : ""}`);
     renderTable(Array.isArray(data) ? data : []);
   } catch (e) {
@@ -149,8 +174,7 @@ async function createCouponFromForm(ev) {
     const valor = Number($("#valorDescuento").value);
     const usoPermitidoRaw = Number($("#usoPermitido").value || 0);
 
-    // Tu validator exige uso_permitido > 0 (aunque el UI dice 0=sin límite).
-    // Solución rápida para que NO falle: si el usuario puso 0, enviamos 999999 (sin límite práctico).
+    // si el usuario puso 0, se envia 999999 (sin límite práctico).
     const uso_permitido = usoPermitidoRaw <= 0 ? 999999 : usoPermitidoRaw;
 
     const aplicaTodos = $("#aplicaTodos").checked;
@@ -169,6 +193,7 @@ async function createCouponFromForm(ev) {
       descuento: { tipo, valor },
     };
 
+    // POST /coupons (creación de cupón)
     await apiPost("/coupons", payload);
 
     $("#createMsg").textContent = "Cupón creado ✅";
@@ -195,13 +220,14 @@ async function onTableClick(ev) {
 
   try {
     if (action === "details") {
+      // GET /coupons/details/:id (detalle para el modal)
       const details = await apiGet(`/coupons/details/${id}`);
       openDetailsModal(details);
       return;
     }
-
-    if (action === "delete") {
-      await apiDelete(`/coupons/${id}`);
+    if (action === "toggle") {
+      // PATCH /coupons/:id/toggle (cambia estado true/false)
+      await apiPatch(`/coupons/${id}/toggle`);
       await loadCoupons();
       return;
     }
@@ -209,6 +235,7 @@ async function onTableClick(ev) {
     alert(e.message);
   }
 }
+
 
 function bindEvents() {
   $("#btnGenerar").addEventListener("click", () => {
