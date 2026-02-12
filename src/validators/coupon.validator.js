@@ -109,7 +109,9 @@ export function validateCouponData(id, data) {
     const fechaTermino = validateDate(data.fecha_termino, "fecha_termino");
 
     if (fechaInicio >= fechaTermino) {
-        throw new Error("La fecha de inicio debe ser anterior a la fecha de término");
+        throw new Error(
+            "La fecha de inicio debe ser anterior a la fecha de término",
+        );
     }
 
     // Retornar objeto limpio y normalizado
@@ -149,12 +151,10 @@ export function validateCouponFilters(filters = {}) {
     // 1. Validar Estado ('true', 'false', 'todos')
     if (filters.estado !== undefined && filters.estado !== null) {
         const val = filters.estado.toString().trim().toLowerCase();
-        if (["true", "false", "todos"].includes(val)) {
+        if (["true", "false"].includes(val)) {
             cleanFilters.estado = val;
         } else {
-            throw new Error(
-                "El filtro 'estado' debe ser 'true', 'false' o 'todos'",
-            );
+            throw new Error("El filtro 'estado' debe ser 'true' o 'false'");
         }
     }
 
