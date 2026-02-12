@@ -2,7 +2,7 @@
 // Punto de entrada principal - Orquesta la lógica del dashboard
 
 import { apiGet, apiPost, apiPatch } from "./api.js";
-import { $, genCode } from "./utils.js";
+import { $, genCode, genUniqueCode } from "./utils.js";
 import {
     renderTable,
     openDetailsModal,
@@ -106,8 +106,16 @@ async function onTableClick(ev) {
 }
 
 function bindEvents() {
-    $("#btnGenerar").addEventListener("click", () => {
-        $("#codigo").value = genCode(8);
+    $("#btnGenerar").addEventListener("click", async () => {
+        try {
+            // Generar código único verificando contra la BD
+            const uniqueCode = await genUniqueCode(apiGet);
+            $("#codigo").value = uniqueCode;
+        } catch (error) {
+            console.error("Error generando código único:", error);
+            // Fallback a código aleatorio simple
+            $("#codigo").value = genCode(8);
+        }
     });
 
     $("#tipoDescuento").addEventListener("change", () => {

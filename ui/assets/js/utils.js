@@ -23,6 +23,32 @@ export function genCode(len = 8) {
 }
 
 /**
+ * Genera un código único verificando que no exista en la base de datos
+ * @param {Function} apiGet - Función para hacer peticiones GET
+ * @param {number} len - Longitud del código
+ * @param {number} maxAttempts - Intentos máximos antes de fallar
+ * @returns {Promise<string>} - Código único generado
+ */
+export async function genUniqueCode(apiGet, len = 8, maxAttempts = 10) {
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const code = genCode(len);
+        
+        try {
+            // Intenta obtener el cupón con este ID
+            await apiGet(`/coupons/details/${code}`);
+            // Si llega aquí, el cupón existe, intentar de nuevo
+            continue;
+        } catch (error) {
+            // Si da error 404 o similar, el código no existe (es único)
+            return code;
+        }
+    }
+    
+    // Si después de maxAttempts no encontramos uno único, aumentar longitud
+    return genCode(len + 2);
+}
+
+/**
  * Formatea el descuento para mostrar
  * @param {object} d - Objeto descuento {tipo, valor}
  * @returns {string} - Descuento formateado
