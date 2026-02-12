@@ -1,6 +1,10 @@
 // Capa de logica de negocios
 // RESPONSABILIDAD: Limpiar y procesar la data entrante según la lógica requerida para los cupones y servicios.
-import { insertCoupon, deleteCoupon, updateCoupon } from "../repository/crud.js";
+import {
+    insertCoupon,
+    deleteCoupon,
+    updateCoupon,
+} from "../repository/crud.js";
 import {
     fetchCoupons,
     fetchCouponById,
@@ -29,15 +33,17 @@ export async function createCoupon(id, data) {
     // 3. Validacion Asincrona: Verificar que los servicios existan
     if (cleanData.aplicacion_todos === false) {
         const serviciosIds = cleanData.aplicacion_algunos || [];
-        
+
         // Verificamos en paralelo si existen
         await Promise.all(
             serviciosIds.map(async (srvId) => {
                 const service = await fetchServiceById(srvId);
                 if (!service) {
-                    throw new Error(`El servicio con ID '${srvId}' no existe en la base de datos`);
+                    throw new Error(
+                        `El servicio con ID '${srvId}' no existe en la base de datos`,
+                    );
                 }
-            })
+            }),
         );
     }
 
@@ -51,8 +57,6 @@ export async function createCoupon(id, data) {
     console.log("Cupón validado e insertado con éxito");
     return insertCoupon(id, couponToInsert);
 }
-
-
 
 // Obtiene cupones aplicando filtros
 export async function getCoupons(filters) {
@@ -111,9 +115,11 @@ export async function getCouponDetails(id) {
                 const service = await fetchServiceById(sid);
                 return {
                     id_servicio: sid,
-                    nombre_servicio: service ? service.nombre : "Servicio no encontrado",
+                    nombre_servicio: service
+                        ? service.nombre
+                        : "Servicio no encontrado",
                 };
-            })
+            }),
         );
     }
 
@@ -136,38 +142,42 @@ export async function getCouponDetails(id) {
         usos: {
             total: usos.length,
             items: await Promise.all(
-            usos.map(async (u) => {
-                let nombreServicio = null;
-                if (u.id_servicio) {
-                const s = await fetchServiceById(u.id_servicio);
-                nombreServicio = s ? s.nombre : "Desconocido";
-                }
-                return {
-                id_usuario: u.id_usuario || null,
-                id_servicio: u.id_servicio || null,
-                nombre_servicio: nombreServicio,
-                fecha_uso: u.fecha_uso,
-                };
-            })
+                usos.map(async (u) => {
+                    let nombreServicio = null;
+                    if (u.id_servicio) {
+                        const s = await fetchServiceById(u.id_servicio);
+                        nombreServicio = s ? s.nombre : "Desconocido";
+                    }
+                    return {
+                        id_usuario: u.id_usuario || null,
+                        id_servicio: u.id_servicio || null,
+                        nombre_servicio: nombreServicio,
+                        fecha_uso: u.fecha_uso,
+                    };
+                }),
             ),
         },
     };
-
 }
 
 // Acciones: Cambio de estado de Activo/Desactivo mediante Botones Habilitar/Deshabilitar
 export async function toggleCouponStatus(id) {
-  const coupon = await fetchCouponById(id);
-  if (!coupon) throw new Error("Cupón no encontrado");
+    const cleanId = validateCouponId(id);
+    const couponSnap = await fetchCouponById(cleanId);
+    
+    if (!couponSnap.exists) {
+        throw new Error("Cupón no encontrado");
+    }
 
-  const nuevoEstado = !coupon.estado;
+    const couponData = couponSnap.data();
+    const nuevoEstado = !couponData.estado;
 
-  await updateCoupon(id, { estado: nuevoEstado });
+    await updateCoupon(cleanId, { estado: nuevoEstado });
 
-  return {
-    id,
-    estado: nuevoEstado,
-  };
+    return {
+        id: cleanId,
+        estado: nuevoEstado,
+    };
 }
 
 // TODO: Eliminar funcion delete

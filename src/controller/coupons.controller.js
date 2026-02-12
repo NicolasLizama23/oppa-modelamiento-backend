@@ -57,25 +57,24 @@ export async function getCouponDetailsController(req, res) {
 
 // PATCH /coupons/:id/toggle
 export async function toggleCouponStatusController(req, res) {
-  try {
-    const { id } = req.params;
+    try {
+        const { id } = req.params;
 
-    if (!id) {
-      return res.status(400).json({ error: "ID requerido" });
+        if (!id) {
+            return res.status(400).json({ error: "ID requerido" });
+        }
+
+        const result = await toggleCouponStatus(id);
+
+        return res.status(200).json({
+            ok: true,
+            message: `Cupón ${id} actualizado con éxito`,
+            data: result, // { id, estado: true/false }
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
     }
-
-    const result = await toggleCouponStatus(id);
-
-    return res.status(200).json({
-      ok: true,
-      message: `Cupón ${id} actualizado con éxito`,
-      data: result, // { id, estado: true/false }
-    });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
 }
-
 
 // DELETE /coupons/:id
 export async function deleteCouponController(req, res) {

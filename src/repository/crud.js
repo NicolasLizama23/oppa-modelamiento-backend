@@ -20,8 +20,8 @@ export async function insertCoupon(id, data) {
  * No elimina información previa.
  */
 export async function updateCoupon(id, data) {
-  const ref = db.collection("coleccion-cupon").doc(id);
-  await ref.update(data);
+    const ref = db.collection("coleccion-cupon").doc(id);
+    await ref.update(data);
 }
 
 // TODO: Eliminar funcion delete

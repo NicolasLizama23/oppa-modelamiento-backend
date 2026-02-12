@@ -151,7 +151,7 @@ export function validateCouponFilters(filters = {}) {
     // 1. Validar Estado ('true', 'false', 'todos')
     if (filters.estado !== undefined && filters.estado !== null) {
         const val = filters.estado.toString().trim().toLowerCase();
-        if (["true", "false"].includes(val)) {
+        if (["true", "false", "todos"].includes(val)) {
             cleanFilters.estado = val;
         } else {
             throw new Error("El filtro 'estado' debe ser 'true' o 'false'");
@@ -182,7 +182,5 @@ export function validateCouponFilters(filters = {}) {
             );
         }
     }
-    }
-
     return cleanFilters;
 }
