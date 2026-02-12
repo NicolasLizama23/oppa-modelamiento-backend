@@ -15,7 +15,7 @@ export async function fetchCoupons(filters = {}) {
             estado: (q, value) => {
                 // Si el valor es "todos", no filtramos
                 if (value === "todos") return q;
-                
+
                 // Convertimos string a booleano solo si es "true"
                 const booleanValue = value === "true";
                 return q.where("estado", "==", booleanValue);
@@ -24,13 +24,17 @@ export async function fetchCoupons(filters = {}) {
                 if (value === "todos") return q;
                 return q.where("descuento.tipo", "==", value);
             },
+            // Se fixea el filtro "aplicacion" para usar el campo real "aplicacion_todos",
+            // ya que antes se filtraba por un campo que no existía en Firestore.
             aplicacion: (q, value) => {
                 if (value === "todos") return q;
                 // "global" -> aplicacion_todos = true
-                if (value === "global") return q.where("aplicacion_todos", "==", true);
+                if (value === "global")
+                    return q.where("aplicacion_todos", "==", true);
                 // "algunos" -> aplicacion_todos = false
-                if (value === "algunos") return q.where("aplicacion_todos", "==", false);
-                
+                if (value === "algunos")
+                    return q.where("aplicacion_todos", "==", false);
+
                 return q;
             },
         };

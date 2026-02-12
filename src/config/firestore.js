@@ -5,7 +5,11 @@ import admin from "firebase-admin";
 process.env.FIRESTORE_EMULATOR_HOST = "localhost:8080";
 
 // usa el mismo projectId que .firebaserc
-const PROJECT_ID = "oppa-firestore-local";
+const PROJECT_ID = process.env.FIREBASE_PROJECT_ID || "oppa-firestore-local";
+
+if (process.env.NODE_ENV !== "production") {
+  process.env.FIRESTORE_EMULATOR_HOST = process.env.FIRESTORE_EMULATOR_HOST || "localhost:8080";
+}
 
 if (!admin.apps.length) {
     admin.initializeApp({ projectId: PROJECT_ID });

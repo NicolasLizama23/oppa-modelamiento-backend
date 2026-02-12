@@ -182,6 +182,7 @@ export function validateCouponFilters(filters = {}) {
             );
         }
     }
+    }
 
     return cleanFilters;
 }

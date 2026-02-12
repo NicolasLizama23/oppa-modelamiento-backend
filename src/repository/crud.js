@@ -14,9 +14,15 @@ export async function insertCoupon(id, data) {
     }
 }
 
-// utilizar { merge: true } si se quiere persistencia de la data previa. Sin esa flag eliminas lo que no actualizas:
-// TODO: Funcion de actualizar pendiente...
-export async function updateCoupon(id, data) {}
+/**
+ * Actualiza parcialmente un cupón existente en Firestore.
+ * Solo modifica los campos enviados en "data".
+ * No elimina información previa.
+ */
+export async function updateCoupon(id, data) {
+  const ref = db.collection("coleccion-cupon").doc(id);
+  await ref.update(data);
+}
 
 // TODO: Eliminar funcion delete
 export async function deleteCoupon(id) {

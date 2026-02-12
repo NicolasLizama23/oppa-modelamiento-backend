@@ -6,6 +6,8 @@ import seedRouter from "./routes/seed.routes.js";
 // librerías Node para resolver rutas en ES Modules
 import path from "path";
 import { fileURLToPath } from "url";
+import "dotenv/config";
+
 
 const app = express();
 const port = 3000;
