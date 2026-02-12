@@ -16,26 +16,34 @@ router.post("/load", async (req, res) => {
 
         // CUPONES
         for (const c of payload.cupones ?? []) {
-            const ref = db.collection("coleccion-cupones").doc(c.codigo);
-            batch.set(ref, {
-                codigo: c.codigo,
-                estado: c.estado ?? true,
-                fecha_creacion: now,
-                fecha_inicio: toTimestamp(c.fecha_inicio),
-                fecha_termino: toTimestamp(c.fecha_termino),
-                descuento: {
-                    tipo: c.descuento.tipo,
-                    valor: c.descuento.valor,
-                },
-                // se guardan igual, aunque se omitan en el dashboard por ahora
-                uso_permitido: c.uso_permitido ?? 0,
-                uso_unico_por_usuario: c.uso_unico_por_usuario ?? false,
-                aplicacion_todos: c.aplicacion_todos ?? true,
-                aplicacion_algunos: {
-                    id_servicio: c.aplicacion_algunos?.id_servicio ?? [],
-                },
-            });
+        // Acepta seed con id o con codigo
+        const id = String(c.id ?? c.codigo ?? "").trim();
+        if (!id) throw new Error("Seed inválido: cupón sin id/codigo");
+
+        // Normaliza aplicacion_algunos a ARRAY (lo más usable para queries y UI)
+        const aplicacionAlgunos = Array.isArray(c.aplicacion_algunos)
+            ? c.aplicacion_algunos
+            : (c.aplicacion_algunos?.id_servicio ?? []);
+
+        const ref = db.collection("coleccion-cupon").doc(id);
+
+        batch.set(ref, {
+            codigo: id, // guardamos codigo consistente
+            estado: c.estado ?? true,
+            fecha_creacion: now,
+            fecha_inicio: toTimestamp(c.fecha_inicio),
+            fecha_termino: toTimestamp(c.fecha_termino),
+            descuento: {
+            tipo: c.descuento?.tipo,
+            valor: c.descuento?.valor,
+            },
+            uso_permitido: c.uso_permitido ?? 1,
+            uso_unico_por_usuario: c.uso_unico_por_usuario ?? false,
+            aplicacion_todos: c.aplicacion_todos ?? true,
+            aplicacion_algunos: aplicacionAlgunos, // <- array directo
+        });
         }
+
 
         await batch.commit();
 

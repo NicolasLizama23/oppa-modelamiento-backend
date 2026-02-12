@@ -22,10 +22,15 @@ export async function fetchCoupons(filters = {}) {
                 if (value === "todos") return q;
                 return q.where("descuento.tipo", "==", value);
             },
+            // Se fixea el filtro "aplicacion" para usar el campo real "aplicacion_todos",
+            // ya que antes se filtraba por un campo que no existía en Firestore.
             aplicacion: (q, value) => {
                 if (value === "todos") return q;
-                return q.where("aplicacion", "==", value);
+                if (value === "TODOS") return q.where("aplicacion_todos", "==", true);
+                if (value === "ESPECIFICOS") return q.where("aplicacion_todos", "==", false);
+                return q;
             },
+
         };
 
         const finalQuery = buildQuery(query, filters, filterConfig);
