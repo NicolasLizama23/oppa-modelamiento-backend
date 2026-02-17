@@ -3,11 +3,11 @@ import cors from "cors";
 import couponsRouter from "./routes/coupons.routes.js";
 import dashboardRouter from "./routes/dashboard.routes.js";
 import seedRouter from "./routes/seed.routes.js";
+import servicesRouter from "./routes/services.routes.js";
 // librerías Node para resolver rutas en ES Modules
 import path from "path";
 import { fileURLToPath } from "url";
 import "dotenv/config";
-
 
 const app = express();
 const port = 3000;
@@ -24,7 +24,7 @@ app.use("/admin", express.static(path.join(__dirname, "../ui")));
 // endpoint que entrega la pantalla de gestión de cupones
 // URL final: http://localhost:3000/admin/coupons
 app.get("/admin/coupons", (req, res) => {
-  res.sendFile(path.join(__dirname, "../ui/pages/coupons.html"));
+    res.sendFile(path.join(__dirname, "../ui/pages/coupons.html"));
 });
 
 app.use(cors());
@@ -40,9 +40,9 @@ app.use((req, res, next) => {
 // Rutas
 app.use("/coupons", couponsRouter);
 app.use("/dashboard", dashboardRouter);
+app.use("/services", servicesRouter);
 //Se agrego la ruta seed para cargar datos iniciales
 app.use("/seed", seedRouter);
-
 
 // Manejo de errores 404
 app.use((req, res) => {

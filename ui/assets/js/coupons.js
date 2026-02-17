@@ -157,6 +157,6 @@ function bindEvents() {
 
 (async function init() {
     bindEvents();
-    await initServicesSelector(); 
+    await initServicesSelector(apiGet); // Cargar servicios desde el backend
     await loadCoupons();
 })();

@@ -55,19 +55,22 @@ function moveSelected(fromId, action) {
 }
 
 // ------------------------------------------------------------
-// 🔌 PUNTO DE INTEGRACIÓN BACKEND
+// 🔌 INTEGRACIÓN BACKEND COMPLETA
 // ------------------------------------------------------------
-// Aquí el backend deberá inyectar los servicios reales.
-// Ejemplo esperado:
-//
-// state.allServices = await apiGet("/api/services");
-// render();
-//
-// Por ahora se deja vacío para que solo funcione el toggle.
+// Carga servicios reales desde Firestore vía API REST
 // ------------------------------------------------------------
 
-export async function initServicesSelector() {
-  render();
+export async function initServicesSelector(apiGet) {
+  try {
+    // Cargar servicios desde el backend
+    state.allServices = await apiGet("/services");
+    render();
+  } catch (error) {
+    console.error("Error cargando servicios:", error);
+    // Si falla, mantener array vacío
+    state.allServices = [];
+    render();
+  }
 
   $("aplicaTodos")?.addEventListener("change", syncVisibility);
   syncVisibility();
