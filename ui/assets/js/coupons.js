@@ -3,6 +3,7 @@
 
 import { apiGet, apiPost, apiPatch } from "./api.js";
 import { $, genCode, genUniqueCode } from "./utils.js";
+import { initServicesSelector, getSelectedServiceIds } from "./servicesSelector.js";
 import {
     renderTable,
     openDetailsModal,
@@ -49,15 +50,35 @@ async function createCouponFromForm(ev) {
         const uso_permitido = usoPermitidoRaw <= 0 ? 999999 : usoPermitidoRaw;
 
         const aplicaTodos = $("#aplicaTodos").checked;
+        const aplicacion_algunos = aplicaTodos ? [] : getSelectedServiceIds();
         const fecha_inicio = $("#fechaInicio").value; // datetime-local => string
         const fecha_termino = $("#fechaTermino").value; // datetime-local => string
+
+        if (!aplicaTodos && aplicacion_algunos.length === 0) {
+            throw new Error("Selecciona al menos un servicio o marca 'Aplica a todos los servicios'.");
+        }
+
+        /*
+        ------------------------------------------------------------
+         PUNTO DE INTEGRACIÓN BACKEND
+
+        Cuando el selector esté conectado a /api/services,
+        getSelectedServiceIds() devolverá los IDs reales.
+
+        Backend deberá aceptar:
+
+        aplicacion_todos: boolean
+        aplicacion_algunos: string[] (IDs de servicios)
+
+        ------------------------------------------------------------
+        */
 
         const payload = {
             id: codigo,
             estado,
             uso_unico_por_usuario: $("#usoUnico").checked,
             aplicacion_todos: aplicaTodos,
-            aplicacion_algunos: [], // UI aún no permite seleccionar servicios específicos
+            aplicacion_algunos: aplicaTodos ? [] : getSelectedServiceIds(),
             uso_permitido,
             fecha_inicio,
             fecha_termino,
@@ -72,7 +93,8 @@ async function createCouponFromForm(ev) {
         ev.target.reset();
         $("#suffixDescuento").textContent = "%";
         $("#estado").value = "true";
-        $("#aplicaTodos").checked = true;
+        $("#aplicaTodos").checked = true;        
+        $("#aplicaTodos").dispatchEvent(new Event("change"));
 
         await loadCoupons();
     } catch (e) {
@@ -135,5 +157,6 @@ function bindEvents() {
 
 (async function init() {
     bindEvents();
+    await initServicesSelector(); 
     await loadCoupons();
 })();
