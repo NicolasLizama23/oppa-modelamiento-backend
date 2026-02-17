@@ -1,5 +1,5 @@
 import { db } from "../src/config/firestore.js";
-import { mockServices, mockUsages, mockCoupons } from "../src/utils/mock.js";
+import { mockServices, mockUsages, mockCoupons, mockUsers } from "../src/utils/mock.js";
 
 async function seedFirestore() {
     try {
@@ -44,6 +44,30 @@ async function seedFirestore() {
 
         await usagesBatch.commit();
         console.log("Usos cargados exitosamente.");
+
+        // 4. Cargar Usuarios (mock para testing)
+        console.log(`Cargando ${mockUsers.length} usuarios de prueba...`);
+        const usersBatch = db.batch();
+
+        mockUsers.forEach((user) => {
+            const docRef = db.collection("usuarios").doc(user.id);
+            usersBatch.set(docRef, user);
+        });
+
+        await usersBatch.commit();
+        console.log("Usuarios cargados exitosamente.");
+
+        // 5. Cargar registros de uso de cupones
+        console.log(`Cargando ${mockUsages.length} registros de uso de cupones...`);
+        const couponUsagesBatch = db.batch();
+
+        mockUsages.forEach((usage) => {
+            const docRef = db.collection("coupon_usages").doc();
+            couponUsagesBatch.set(docRef, usage);
+        });
+
+        await couponUsagesBatch.commit();
+        console.log("Registros de uso de cupones cargados exitosamente.");
 
         console.log("¡Migración completada!");
         process.exit(0);
