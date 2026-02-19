@@ -94,5 +94,31 @@ export async function fetchServiceById(id) {
     }
 }
 
-// POST:
-// UPDATE (o patch):
+///-------------------///
+/// COUPON USAGES   ///
+///-------------------///
+
+// GET: Verifica si un usuario ya usó un cupón específico
+export async function fetchCouponUsageByUserAndCoupon(userId, couponId) {
+    try {
+        const snapshot = await db
+            .collection("coupon_usages")
+            .where("id_usuario", "==", userId)
+            .where("codigo_cupon", "==", couponId)
+            .get();
+
+        return snapshot.empty ? null : snapshot.docs[0];
+    } catch (error) {
+        throw error;
+    }
+}
+
+// POST: Registra el uso de un cupón por un usuario
+export async function createCouponUsage(usageData) {
+    try {
+        const docRef = await db.collection("coupon_usages").add(usageData);
+        return { id: docRef.id, ...usageData };
+    } catch (error) {
+        throw error;
+    }
+}

@@ -4,6 +4,7 @@ import couponsRouter from "./routes/coupons.routes.js";
 import dashboardRouter from "./routes/dashboard.routes.js";
 import seedRouter from "./routes/seed.routes.js";
 import servicesRouter from "./routes/services.routes.js";
+import couponUsageRouter from "./routes/couponUsage.routes.js";
 // librerías Node para resolver rutas en ES Modules
 import path from "path";
 import { fileURLToPath } from "url";
@@ -41,6 +42,7 @@ app.use((req, res, next) => {
 app.use("/coupons", couponsRouter);
 app.use("/dashboard", dashboardRouter);
 app.use("/services", servicesRouter);
+app.use("/coupons", couponUsageRouter);
 //Se agrego la ruta seed para cargar datos iniciales
 app.use("/seed", seedRouter);
 

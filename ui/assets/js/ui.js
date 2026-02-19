@@ -77,6 +77,16 @@ export function openDetailsModal(details) {
     $("#dServicios").textContent = serviciosTxt;
     $("#dVigencia").textContent = `${details.fecha_inicio ?? "—"} al ${details.fecha_termino ?? "—"}`;
 
+    // Mostrar restricción de uso único por usuario
+    const usoUnico = details.uso_unico_por_usuario ?? false;
+    const restriccionHTML = usoUnico
+        ? `<span class="badge bg-info">✓ Uso único por usuario</span>
+           <br><small class="text-muted mt-1 d-block">Cada usuario puede usar este cupón solo una vez</small>`
+        : `<span class="badge bg-secondary">Uso múltiple permitido</span>
+           <br><small class="text-muted mt-1 d-block">Los usuarios pueden usar este cupón varias veces</small>`;
+    
+    $("#dRestriccion").innerHTML = restriccionHTML;
+
     const modalEl = document.getElementById("couponDetailModal");
     const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
