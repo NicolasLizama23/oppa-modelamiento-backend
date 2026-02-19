@@ -18,7 +18,7 @@ export async function getServices() {
         }));
     }
 
-    // 🔁 Fallback a mock si no hay datos en Firestore
+    //  Fallback a mock si no hay datos en Firestore
     console.log("Firestore vacío, usando mockServices");
     return mockServices.map((s) => ({
         id: s.id,
