@@ -1,158 +1,126 @@
-# Inicialización del Proyecto – Gestión de Cupones (Oppa)
+# Backend Gestión de Cupones -- Oppa
 
-Este proyecto corresponde a un backend desarrollado en **Node.js + Express**, que utiliza **Firestore Emulator** para modelar y validar la funcionalidad de **Gestión de Cupones** del proyecto Oppa.
+Backend desarrollado en **Node.js + Express + Firestore Emulator**,
+enfocado en el modelamiento de datos y consultas necesarias para el
+dashboard administrativo del sistema de cupones de Oppa.
 
-El objetivo principal es validar el **modelamiento de datos y las consultas necesarias para el dashboard administrativo**, sin desarrollar una interfaz gráfica.
+El proyecto está orientado a validar estructura, arquitectura por capas
+y consultas complejas, trabajando exclusivamente en entorno local
+mediante Firebase Emulator.
 
----
+------------------------------------------------------------------------
 
-## 📦 Requisitos previos
+#  Requisitos Previos
 
-Antes de ejecutar el proyecto, asegúrate de tener instalado:
+-   Node.js v18 o superior
+-   Firebase CLI npm install -g firebase-tools
+-   Java (requerido por Firestore Emulator) java -version
 
-- **Node.js** (v18 o superior)
-- **Firebase CLI**
-  ```bash
-  npm install -g firebase-tools
-  ```
-- **Java (JDK)** – requerido por Firestore Emulator
-  ```bash
-  java -version
-  ```
+------------------------------------------------------------------------
 
----
+#  Estructura del Proyecto
 
-## 📁 Estructura del proyecto
-
-```
-modelamiento/
+oppa-modelamiento-backend/
+│
 ├── src/
-│   ├── server.js              # Entry point de la API
-│   ├── firestore.js           # Configuración Firestore Emulator
-│   └── routes/
-│       ├── seed.routes.js     # Inserción de datos por endpoint
-│       ├── dashboard.routes.js# Queries del dashboard
-│       └── coupons.routes.js  # CRUD de cupones
-├── data/
-│   └── seed.json              # Datos de prueba
-├── firebase.json              # Configuración de emuladores
-├── .firebaserc                # projectId local
+│   ├── config/
+│   │   └── firestore.js        # Configuración y conexión a Firestore
+│   │
+│   ├── controllers/            # Manejo de request/response
+│   ├── services/               # Lógica de negocio
+│   ├── repositories/           # Acceso a datos (Firestore)
+│   ├── routes/                 # Definición de endpoints
+│   │
+│   ├── utils/
+│   │   └── mock.js             # Datos mock utilizados para seed
+│   │
+│   └── server.js               # Entry point de la aplicación
+│
+├── scripts/
+│   └── seedFirestore.js        # Script de carga masiva de datos
+│
+├── firebase.json               # Configuración de emuladores
+├── .firebaserc                 # projectId local
 ├── package.json
 └── README.md
-```
 
-> ⚠️ La carpeta `node_modules` **no debe incluirse** en la entrega.
 
----
+------------------------------------------------------------------------
 
-## ⚙️ Instalación del proyecto
+#  Instalación
 
-Desde la carpeta raíz del proyecto:
+Desde la raíz del proyecto:
 
-```bash
 npm install
-```
 
----
+------------------------------------------------------------------------
 
-## 🔥 Levantar Firestore Emulator
+# Levantar Firestore Emulator
 
-En una terminal, desde la raíz del proyecto:
-
-```bash
 firebase emulators:start
-```
 
 Servicios disponibles:
-- Firestore Emulator: `http://127.0.0.1:8080`
-- Emulator UI: `http://127.0.0.1:4000`
 
-⚠️ **No cerrar esta terminal** mientras el proyecto esté en uso.
+-   Firestore: http://127.0.0.1:8080
+-   Emulator UI: http://127.0.0.1:4000
 
----
+------------------------------------------------------------------------
 
-## 🖥️ Levantar la API Node.js
+# Levantar la API
 
-En **otra terminal**, desde la raíz del proyecto:
-
-```bash
 npm run dev
-```
 
-La API se levantará en:
+API disponible en: http://localhost:3000
 
-```
-http://127.0.0.1:3000
-```
+Endpoint de prueba: GET /health
 
-Endpoint de prueba:
-```
-GET /health
-```
+------------------------------------------------------------------------
 
----
+# Cargar Datos de Prueba (Seed)
 
-## 📥 Cargar datos de prueba (seed)
+La carga de datos se realiza ejecutando el script:
 
-Con el emulador y la API levantados, ejecutar:
+node scripts/seedFirestore.js
 
-### PowerShell
-```powershell
-Invoke-RestMethod -Uri http://127.0.0.1:3000/seed/load -Method POST
-```
+Este script inserta datos en las siguientes colecciones:
 
-Esto cargará los datos definidos en `data/seed.json` en Firestore Emulator.
+-   coleccion-cupon
+-   coleccion-servicio
+-   coleccion_usos
+-   usuarios
 
----
+Los datos mock se encuentran en: src/utils/mock.js
 
-## 👀 Visualizar datos en Firestore
+------------------------------------------------------------------------
 
-Abrir en el navegador:
+#  Visualizar Datos
 
-```
-http://127.0.0.1:4000/firestore
-```
+Abrir: http://127.0.0.1:4000/firestore
 
-Colecciones creadas:
-- `cupones`
-- `usos`
+------------------------------------------------------------------------
 
----
+#  Arquitectura Implementada
 
-## 📊 Consultar información del dashboard
+-   Routes → Definen endpoints
+-   Controllers → Manejan request/response
+-   Services → Lógica de negocio
+-   Repositories → Acceso a Firestore
+-   Config → Configuración base de datos
+-   Utils → Datos mock y helpers
 
-Para obtener los datos del dashboard administrativo:
+------------------------------------------------------------------------
 
-```powershell
-Invoke-RestMethod -Uri http://127.0.0.1:3000/dashboard/coupons -Method GET
-```
+#  Funcionalidades
 
-El endpoint retorna:
-- código del cupón
-- estado
-- tipo y valor de descuento
-- vigencia
-- cantidad de usos
-- servicios asociados (IDs)
+✔ Firestore Emulator operativo\
+✔ Arquitectura modular por capas\
+✔ Seed automatizado mediante script\
+✔ Inserción masiva con batch\
+✔ Modelamiento desacoplado
 
----
+------------------------------------------------------------------------
 
-## 🧠 Consideraciones importantes
+#  Objetivo
 
-- El proyecto trabaja **solo con Firestore Emulator**, no con Firestore real.
-- La entidad **servicios no está modelada aún**; se utilizan identificadores (`id_servicio`) como strings.
-- Toda la inserción de datos se realiza **exclusivamente mediante endpoints**, según lo solicitado.
-
----
-
-## ✅ Estado del proyecto
-
-- ✔ Firestore Emulator operativo
-- ✔ API Express funcional
-- ✔ Inserción por endpoint
-- ✔ Queries del dashboard validadas
-- ✔ Estructura ordenada (`src/` como entry point)
-
----
-
-
+Validar modelamiento de datos, consultas para dashboard administrativo y
+correcta separación de responsabilidades en backend profesional.
