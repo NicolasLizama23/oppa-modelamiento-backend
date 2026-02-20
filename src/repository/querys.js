@@ -59,7 +59,7 @@ export async function fetchCouponById(id) {
 export async function fetchCouponUsages(couponId) {
     try {
         return await db
-            .collection("usos")
+            .collection("coleccion_usos")
             .where("codigo_cupon", "==", couponId)
             .orderBy("fecha_uso", "desc")
             .get();
