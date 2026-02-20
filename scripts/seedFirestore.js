@@ -1,5 +1,10 @@
 import { db } from "../src/config/firestore.js";
-import { mockServices, mockUsages, mockCoupons, mockUsers } from "../src/utils/mock.js";
+import {
+    mockServices,
+    mockUsages,
+    mockCoupons,
+    mockUsers,
+} from "../src/utils/mock.js";
 
 async function seedFirestore() {
     try {
@@ -38,7 +43,7 @@ async function seedFirestore() {
 
         mockUsages.forEach((usage) => {
             // Firestore genera ID automático para estos si no tienen uno específico
-            const docRef = db.collection("usos").doc();
+            const docRef = db.collection("coleccion_usos").doc();
             usagesBatch.set(docRef, usage);
         });
 
@@ -58,11 +63,13 @@ async function seedFirestore() {
         console.log("Usuarios cargados exitosamente.");
 
         // 5. Cargar registros de uso de cupones
-        console.log(`Cargando ${mockUsages.length} registros de uso de cupones...`);
+        console.log(
+            `Cargando ${mockUsages.length} registros de uso de cupones...`,
+        );
         const couponUsagesBatch = db.batch();
 
         mockUsages.forEach((usage) => {
-            const docRef = db.collection("coupon_usages").doc();
+            const docRef = db.collection("coleccion_usos").doc();
             couponUsagesBatch.set(docRef, usage);
         });
 
